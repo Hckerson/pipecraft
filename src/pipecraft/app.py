@@ -1,4 +1,4 @@
-from config.app_config import get_config, load_config
+from pipecraft.settings.path import get_config, load_config
 from pipecraft.etl.pipeline import parse_result, run_pipeline
 
 

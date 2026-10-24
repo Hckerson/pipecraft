@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from config.app_config import AppConfig
 from pipecraft import app
 from pipecraft.etl.models import Row
 from pipecraft.etl.pipeline import PipelineResult
+from pipecraft.settings.path import AppConfig
 
 
 def test_main_runs_pipeline_and_prints_summary(

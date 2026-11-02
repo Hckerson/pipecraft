@@ -1,5 +1,5 @@
-from pipecraft.settings.path import get_config, load_config
 from pipecraft.etl.pipeline import parse_result, run_pipeline
+from pipecraft.settings.path import get_config, load_config
 
 
 def main() -> None:

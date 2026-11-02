@@ -1,12 +1,9 @@
 from collections.abc import Iterable, Mapping
 from datetime import datetime
-
 from pydantic import ValidationError
+from .models import Row, RawRow, NormalizedRow
 
-from .models import Row
 
-RawRow = Mapping[str, str | None]
-NormalizedRow = dict[str, str | int | datetime | None]
 
 
 class RowTransformError(ValueError):

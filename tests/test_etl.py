@@ -1,20 +1,21 @@
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
+from pydantic import ValidationError
+from pipecraft.etl import (
+    Row,
+    clean_row,
+    validate_row,
+    parse_result,
+    run_pipeline,
+    normalize_row,
+    transform_rows,
+    RowTransformError,
+)
 
 import pytest
 
-from pipecraft.etl.models import Row
-from pipecraft.etl.pipeline import parse_result, run_pipeline
-from pipecraft.etl.transforms import (
-    RowTransformError,
-    clean_row,
-    normalize_row,
-    transform_rows,
-    validate_row,
-)
 
-
-def test_clean_normalize_and_validate_row() -> None:
+def test_clean_normalize_and_validate_rows() -> None:
     raw_row = {
         "id": " 7 ",
         "name": " Ada Lovelace ",
@@ -36,21 +37,21 @@ def test_clean_normalize_and_validate_row() -> None:
     }
 
     normalized = normalize_row(raw_row)
-
     assert normalized["id"] == 7
+    assert normalized["name"] == "Ada Lovelace"
+    assert normalized["email"] == "ada@example.com"
     assert normalized["amount"] == 42
     assert normalized["created_at"] == datetime(2026, 10, 23, 12, 30)
-    assert normalized["name"] == "Ada Lovelace"
-    assert normalized["note"] is None
+    assert normalized["note"] == None
+    assert normalized["optional"] == None
 
     row = validate_row(raw_row)
-
     assert row.id == 7
     assert row.amount == 42
     assert row.email == "ada@example.com"
 
 
-def test_normalize_uses_current_time_when_created_at_is_missing() -> None:
+def test_normalize_uses_current_time_when_created_at_is_missing():
     normalized = normalize_row(
         {
             "id": "1",
@@ -102,10 +103,11 @@ def test_run_pipeline_and_summarize_csv(tmp_path: Path) -> None:
             created_at=datetime(2026, 10, 23, 10),
         ),
     ]
+    assert len(rows) == 2
     assert parse_result(rows) == {"data": rows, "count": 2}
 
 
-def test_transform_rows_validates_every_item() -> None:
+def test_transform_rows_validates_every_row():
     rows = transform_rows(
         [
             {

@@ -5,7 +5,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 @dataclass
-class AppConfig:
+class AppPath:
     root: Path = PROJECT_ROOT
 
     @property
@@ -21,17 +21,17 @@ class AppConfig:
         return self.root / "config"
 
 
-def ensure_dirs(config: AppConfig) -> None:
+def ensure_dirs(config: AppPath) -> None:
     for directory in (config.data_dir, config.docs_dir, config.config_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
 
-config = AppConfig()
+config = AppPath()
 
 
-def load_config() -> None:
+def load_path() -> None:
     ensure_dirs(config)
 
 
-def get_config() -> AppConfig:
+def get_path() -> AppPath:
     return config

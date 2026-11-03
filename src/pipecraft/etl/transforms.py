@@ -1,9 +1,9 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from datetime import datetime
+
 from pydantic import ValidationError
-from .models import Row, RawRow, NormalizedRow
 
-
+from .models import NormalizedRow, RawRow, Row
 
 
 class RowTransformError(ValueError):

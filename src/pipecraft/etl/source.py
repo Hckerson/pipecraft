@@ -1,5 +1,6 @@
 import csv
 from collections.abc import Iterator
+
 from pipecraft.etl.models import RawRow
 
 

@@ -1,18 +1,18 @@
-from pathlib import Path
 from datetime import datetime
-from pydantic import ValidationError
-from pipecraft.etl import (
-    Row,
-    clean_row,
-    validate_row,
-    parse_result,
-    run_pipeline,
-    normalize_row,
-    transform_rows,
-    RowTransformError,
-)
+from pathlib import Path
 
 import pytest
+
+from pipecraft.etl import (
+    Row,
+    RowTransformError,
+    clean_row,
+    normalize_row,
+    parse_result,
+    run_pipeline,
+    transform_rows,
+    validate_row,
+)
 
 
 def test_clean_normalize_and_validate_rows() -> None:
@@ -42,8 +42,8 @@ def test_clean_normalize_and_validate_rows() -> None:
     assert normalized["email"] == "ada@example.com"
     assert normalized["amount"] == 42
     assert normalized["created_at"] == datetime(2026, 10, 23, 12, 30)
-    assert normalized["note"] == None
-    assert normalized["optional"] == None
+    assert normalized["note"] is None
+    assert normalized["optional"] is None
 
     row = validate_row(raw_row)
     assert row.id == 7

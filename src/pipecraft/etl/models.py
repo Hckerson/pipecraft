@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime
-from collections.abc import Iterable, Mapping
 
 from pydantic import (
     BaseModel,
@@ -18,6 +18,7 @@ class Row(BaseModel):
     email: EmailStr = Field(min_length=1)
     amount: PositiveInt
     created_at: datetime = Field(default_factory=datetime.now)
+
 
 RawRow = Mapping[str, str | None]
 NormalizedRow = dict[str, str | int | datetime | None]

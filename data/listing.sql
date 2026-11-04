@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS listing;
 
 CREATE TABLE listing (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email TEXT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,

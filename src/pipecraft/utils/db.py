@@ -1,12 +1,10 @@
 import sqlite3
 
-from src.pipecraft.settings.path import get_path
-from src.pipecraft.settings.config import get_config
+from pipecraft.settings.path import get_path
 
 paths = get_path()
-configs = get_config()
 db_path = paths.data_dir / "listing.db"
-TABLE_NAME = configs.TABLE_NAME
+sql_path = paths.data_dir / "listing.sql"
 
 
 class Db:
@@ -29,20 +27,29 @@ class Db:
         result = self.execute(query, params)
         return [row for row in result.fetchmany()]
 
-    def insert_row(self, query: str, content: tuple | list[tuple]):
-        self.execute(query)
+    def insert_row(self, query: str, payload: tuple) -> int:
+        self.cursor.execute(query, payload)
         self.conn.commit()
+        return self.cursor.rowcount
+
+    def insert_rows(self, query: str, payload: list[tuple]) -> int:
+        self.cursor.executemany(query, payload)
+        self.conn.commit()
+        return self.cursor.rowcount
+
+    def __exit__(self, exc_type, exc, tb):
+        self.conn.close()
 
 
 def ensure_table_exists(db: Db) -> None:
-    res = db.execute("SELECT name FROM sqlite_master WHERE name=?", "listing")
+    res = db.execute("SELECT name FROM sqlite_master WHERE name=?", ("listing",))
 
     if not res.fetchone():
-        with open(db_path, "r") as dump:
-            content = dump.read()
+        with open(sql_path, "r") as dump:
+            payload = dump.read()
 
         try:
-            db.cursor.executescript(content)
+            db.cursor.executescript(payload)
             db.conn.commit()
             print("Sql script executed successfully")
         except sqlite3.Error as e:

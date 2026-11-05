@@ -27,12 +27,12 @@ class Db:
         result = self.execute(query, params)
         return [row for row in result.fetchmany()]
 
-    def insert_row(self, query: str, payload: tuple) -> int:
+    def insert_one(self, query: str, payload: tuple) -> int:
         self.cursor.execute(query, payload)
         self.conn.commit()
         return self.cursor.rowcount
 
-    def insert_rows(self, query: str, payload: list[tuple]) -> int:
+    def insert_many(self, query: str, payload: list[tuple]) -> int:
         self.cursor.executemany(query, payload)
         self.conn.commit()
         return self.cursor.rowcount
@@ -42,9 +42,10 @@ class Db:
 
 
 def ensure_table_exists(db: Db) -> None:
-    res = db.execute("SELECT name FROM sqlite_master WHERE name=?", ("listing",))
+    list_res = db.execute("SELECT name FROM sqlite_master WHERE name=?", ("listing",))
+    run_res = db.execute("SELECT name FROM sqlite_master WHERE name=?", ("run",))
 
-    if not res.fetchone():
+    if not list_res.fetchone() or not run_res.fetchone():
         with open(sql_path, "r") as dump:
             payload = dump.read()
 

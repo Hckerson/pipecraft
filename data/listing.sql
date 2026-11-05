@@ -1,9 +1,21 @@
 DROP TABLE IF EXISTS listing;
 
 CREATE TABLE listing (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY UNIQUE,
     name VARCHAR(255) NOT NULL,
     email TEXT NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE run (
+    id INT PRIMARY KEY UNIQUE,
+    rows_in INT NOT NULL,
+    rows_out INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    error_message TEXT,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (listing_id) REFERENCES listing(id)
 );

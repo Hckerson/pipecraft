@@ -1,0 +1,10 @@
+
+CREATE TABLE run (
+    id TEXT PRIMARY KEY UNIQUE,
+    rows_in INT NOT NULL,
+    rows_out INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    error_message TEXT,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

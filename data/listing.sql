@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS listing;
 
 CREATE TABLE listing (
     id INT PRIMARY KEY UNIQUE,
@@ -8,14 +7,3 @@ CREATE TABLE listing (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE run (
-    id INT PRIMARY KEY UNIQUE,
-    rows_in INT NOT NULL,
-    rows_out INT NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    error_message TEXT,
-    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    finished_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (listing_id) REFERENCES listing(id)
-);

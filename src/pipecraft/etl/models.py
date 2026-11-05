@@ -1,16 +1,15 @@
 from collections.abc import Mapping
 from datetime import datetime
-from typing import Annotated
-from uuid import uuid4, UUID
 from enum import StrEnum
+from typing import Annotated
+from uuid import UUID, uuid4
 
 from pydantic import (
-    Field,
-    EmailStr,
     BaseModel,
     ConfigDict,
+    EmailStr,
+    Field,
     PositiveInt,
-    model_serializer,
 )
 from pydantic.types import UuidVersion
 

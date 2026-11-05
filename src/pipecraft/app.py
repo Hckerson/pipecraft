@@ -1,5 +1,5 @@
 from pipecraft.etl.pipeline import parse_result, run_pipeline
-from pipecraft.settings.path import load_path, get_path
+from pipecraft.settings.path import get_path, load_path
 from pipecraft.utils.db import load_db
 
 

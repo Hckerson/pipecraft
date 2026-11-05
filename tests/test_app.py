@@ -29,6 +29,7 @@ def test_main_runs_pipeline_and_prints_summary(
         return summary
 
     monkeypatch.setattr(app, "load_path", fake_load_path)
+    monkeypatch.setattr(app, "load_db", lambda: None)
     monkeypatch.setattr(app, "get_path", fake_get_path)
     monkeypatch.setattr(app, "run_pipeline", fake_run_pipeline)
     monkeypatch.setattr(app, "parse_result", fake_parse_result)

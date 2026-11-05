@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 
@@ -13,6 +14,26 @@ from pipecraft.etl import (
     transform_rows,
     validate_row,
 )
+from pipecraft.etl import pipeline as pipeline_module
+from pipecraft.etl.sink import Sink
+from pipecraft.utils.db import Db, ensure_table_exists
+
+
+@pytest.fixture
+def isolated_pipeline_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Db]:
+    database = Db(tmp_path / "pipecraft.db")
+    ensure_table_exists(database)
+    monkeypatch.setattr(
+        pipeline_module,
+        "get_sink",
+        lambda: Sink(database),
+    )
+    try:
+        yield database
+    finally:
+        database.conn.close()
 
 
 def test_clean_normalize_and_validate_rows() -> None:
@@ -76,7 +97,9 @@ def test_validate_row_wraps_pydantic_validation_errors() -> None:
         )
 
 
-def test_run_pipeline_and_summarize_csv(tmp_path: Path) -> None:
+def test_run_pipeline_and_summarize_csv(
+    tmp_path: Path, isolated_pipeline_database: Db
+) -> None:
     csv_path = tmp_path / "rows.csv"
     csv_path.write_text(
         "id,name,email,amount,created_at\n"
@@ -105,6 +128,9 @@ def test_run_pipeline_and_summarize_csv(tmp_path: Path) -> None:
     ]
     assert len(rows) == 2
     assert parse_result(rows) == {"data": rows, "count": 2}
+    assert isolated_pipeline_database.query_one(
+        "SELECT status, rows_in, rows_out FROM run"
+    ) == ("succeeded", 2, 2)
 
 
 def test_transform_rows_validates_every_row():

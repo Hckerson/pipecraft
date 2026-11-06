@@ -42,5 +42,10 @@ class Row(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
 
 
+class Args(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    
+
+
 RawRow = Mapping[str, str | None]
 NormalizedRow = dict[str, str | int | datetime | None]

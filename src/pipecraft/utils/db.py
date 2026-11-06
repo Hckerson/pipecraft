@@ -44,6 +44,18 @@ class Db:
         self.conn.close()
 
 
+def create_table(db: Db, path: Path) -> None:
+    with open(path) as dump:
+        payload = dump.read()
+
+    try:
+        db.cursor.executescript(payload)
+        db.conn.commit()
+        print("Sql script executed successfully")
+    except sqlite3.Error as e:
+        print("Failed to create table: ", str(e))
+
+
 def ensure_table_exists(db: Db) -> None:
     list_exists = db.query_one(
         "SELECT name FROM sqlite_master WHERE name=?", ("listing",)
@@ -51,26 +63,9 @@ def ensure_table_exists(db: Db) -> None:
     run_exists = db.query_one("SELECT name FROM sqlite_master WHERE name=?", ("run",))
 
     if not list_exists:
-        with open(listing_sql_path) as dump:
-            payload = dump.read()
-
-        try:
-            db.cursor.executescript(payload)
-            db.conn.commit()
-            print("Sql script executed successfully")
-        except sqlite3.Error as e:
-            print("Failed to create table: ", str(e))
-
+        create_table(db, listing_sql_path)
     if not run_exists:
-        with open(run_sql_path) as dump:
-            payload = dump.read()
-
-        try:
-            db.cursor.executescript(payload)
-            db.conn.commit()
-            print("Sql script executed successfully")
-        except sqlite3.Error as e:
-            print("Failed to create table: ", str(e))
+        create_table(db, run_sql_path)
 
 
 db = Db()

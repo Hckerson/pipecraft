@@ -1,11 +1,11 @@
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
+from uuid import UUID
 
 import pytest
 
 from pipecraft.etl import (
-    Row,
     RowTransformError,
     clean_row,
     normalize_row,
@@ -58,7 +58,8 @@ def test_clean_normalize_and_validate_rows() -> None:
     }
 
     normalized = normalize_row(raw_row)
-    assert normalized["id"] == 7
+    assert isinstance(normalized["id"], UUID)
+    assert normalized["source_id"] == 7
     assert normalized["name"] == "Ada Lovelace"
     assert normalized["email"] == "ada@example.com"
     assert normalized["amount"] == 42
@@ -67,7 +68,8 @@ def test_clean_normalize_and_validate_rows() -> None:
     assert normalized["optional"] is None
 
     row = validate_row(raw_row)
-    assert row.id == 7
+    assert isinstance(row.id, UUID)
+    assert row.source_id == 7
     assert row.amount == 42
     assert row.email == "ada@example.com"
 
@@ -110,23 +112,16 @@ def test_run_pipeline_and_summarize_csv(
 
     rows = run_pipeline(str(csv_path))
 
-    assert rows == [
-        Row(
-            id=1,
-            name="Ada",
-            email="ada@example.com",
-            amount=5,
-            created_at=datetime(2026, 10, 23, 9),
-        ),
-        Row(
-            id=2,
-            name="Grace",
-            email="grace@example.com",
-            amount=8,
-            created_at=datetime(2026, 10, 23, 10),
-        ),
-    ]
     assert len(rows) == 2
+    assert all(isinstance(row.id, UUID) for row in rows)
+    assert [(row.source_id, row.name, row.amount) for row in rows] == [
+        (1, "Ada", 5),
+        (2, "Grace", 8),
+    ]
+    assert [row.created_at for row in rows] == [
+        datetime(2026, 10, 23, 9),
+        datetime(2026, 10, 23, 10),
+    ]
     assert parse_result(rows) == {"data": rows, "count": 2}
     assert isolated_pipeline_database.query_one(
         "SELECT status, rows_in, rows_out FROM run"
@@ -145,4 +140,4 @@ def test_transform_rows_validates_every_row():
         ]
     )
 
-    assert [row.id for row in rows] == [3]
+    assert [row.source_id for row in rows] == [3]

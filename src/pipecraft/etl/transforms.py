@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 from datetime import datetime
+from uuid import uuid4
 
 from pydantic import ValidationError
 
@@ -28,9 +29,11 @@ def normalize_row(row: RawRow) -> NormalizedRow:
 
     normalized_row: NormalizedRow = {}
 
+    normalized_row["id"] = uuid4()
+
     id_value = cleaned_row.get("id")
     if id_value is not None:
-        normalized_row["id"] = int(id_value)
+        normalized_row["source_id"] = int(id_value)
 
     amount_value = cleaned_row.get("amount")
     if amount_value is not None:

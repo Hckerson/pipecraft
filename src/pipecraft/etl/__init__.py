@@ -1,5 +1,5 @@
 from .models import Row
-from .pipeline import parse_result, run_pipeline
+from .pipeline import run_pipeline
 from .source import parse_csv
 from .transforms import (
     RowTransformError,
@@ -15,7 +15,6 @@ __all__ = [
     "clean_row",
     "normalize_row",
     "parse_csv",
-    "parse_result",
     "run_pipeline",
     "transform_rows",
     "validate_row",

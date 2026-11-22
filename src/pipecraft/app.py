@@ -1,6 +1,7 @@
-from pipecraft.etl.pipeline import parse_result, run_pipeline
+from pipecraft.etl.pipeline import run_pipeline
 from pipecraft.settings.path import get_path, load_path
 from pipecraft.utils.db import load_db
+from pipecraft.utils.cli import get_args
 
 
 def main() -> None:
@@ -8,10 +9,9 @@ def main() -> None:
     load_db()
 
     path = get_path()
-    file_path = path.data_dir / "sample.csv"
-    rows = run_pipeline(str(file_path))
-    parsed = parse_result(rows)
-    print(parsed)
+    args = get_args()
+    file_path = path.data_dir / args.file
+    rows = run_pipeline(str(file_path), args)
 
 
 if __name__ == "__main__":

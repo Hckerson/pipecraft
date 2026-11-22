@@ -8,13 +8,20 @@ class Sink:
 
     def insert_listing(self, rows: list[Row]) -> int:
         payload = [
-            (row.id, row.name, row.email, row.amount, str(row.created_at.isoformat()))
+            (
+                str(row.id),
+                row.name,
+                row.email,
+                row.source_id,
+                row.amount,
+                str(row.created_at.isoformat()),
+            )
             for row in rows
         ]
 
         row_count = self.db.insert_many(
-            "INSERT INTO listing (id, name, email, amount, created_at) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO listing (id, name, email, source_id, amount, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
             payload,
         )
         return row_count

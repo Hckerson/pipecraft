@@ -3,18 +3,14 @@ from datetime import datetime
 from sqlite3 import Error as SqliteError
 from typing import TypedDict
 
-from .models import Row, Run, RunStatus
+from .models import Args, Row, Run, RunStatus
 from .sink import get_sink
 from .source import parse_csv
 from .transforms import RowTransformError, transform_rows
 
 
-class PipelineResult(TypedDict):
-    data: list[Row]
-    count: int
 
-
-def run_pipeline(path: str) -> list[Row]:
+def run_pipeline(path: str, args: Args) -> list[Row]:
     run: dict[str, object] = {
         "started_at": datetime.now(),
         "rows_in": 0,
@@ -51,5 +47,4 @@ def run_pipeline(path: str) -> list[Row]:
         sink.insert_run(Run.model_validate(run))
 
 
-def parse_result(rows: list[Row]) -> PipelineResult:
-    return {"data": rows, "count": len(rows)}
+

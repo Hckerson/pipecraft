@@ -35,17 +35,23 @@ class Run(BaseModel):
 class Row(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    id: int = Field(gt=0)
+    id: Annotated[UUID, UuidVersion(4)] = Field(default_factory=uuid4)
     name: str = Field(min_length=1)
     email: EmailStr = Field(min_length=1)
     amount: PositiveInt
+    source_id: int | None = None
     created_at: datetime = Field(default_factory=datetime.now)
 
 
 class Args(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
+    db: str | None = None
+    file: str
+    test: bool = False
+    parse: bool = False
+    transform: bool = False
 
 
 RawRow = Mapping[str, str | None]
-NormalizedRow = dict[str, str | int | datetime | None]
+NormalizedRow = dict[str, str | int | UUID | datetime | None]

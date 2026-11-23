@@ -1,4 +1,5 @@
 import argparse
+
 from pipecraft.etl.models import Args
 
 parser = argparse.ArgumentParser(
@@ -7,9 +8,8 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--db")
 parser.add_argument("file")
-parser.add_argument("--test", action="store_true")
+parser.add_argument("-t", "--test", action="store_true")
 parser.add_argument("-p", "--parse", action="store_true")
-parser.add_argument("-t", "--transform", action="store_true")
 
 
 def get_args() -> Args:
@@ -19,5 +19,4 @@ def get_args() -> Args:
         file=result.file,
         test=result.test,
         parse=result.parse,
-        transform=result.transform,
     )

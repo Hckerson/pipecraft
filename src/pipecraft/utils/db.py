@@ -1,13 +1,18 @@
+from shutil import ExecError
 import sqlite3
 from pathlib import Path
 
 from pipecraft.settings.path import get_path
+from pipecraft.utils.decorators import retry
 
 paths = get_path()
 db_path = paths.data_dir / "pipecraft.db"
 listing_sql_path = paths.data_dir / "listing.sql"
 run_sql_path = paths.data_dir / "run.sql"
 
+
+class DbError(ExecError):
+    pass
 
 class Db:
     def __init__(self, database_path: Path | None = None) -> None:
@@ -19,8 +24,12 @@ class Db:
         conn = sqlite3.connect(self.database_path)
         return conn
 
+    @retry
     def execute(self, query: str, params: str | tuple = ()):
-        return self.cursor.execute(query, params)
+        try:
+            return self.cursor.execute(query, params)
+        except sqlite3.Error as e:
+            raise DbError(str(e)) from e
 
     def query_one(self, query: str, params: str | tuple = ()):
         result = self.execute(query, params)
@@ -31,14 +40,17 @@ class Db:
         return result.fetchall()
 
     def insert_one(self, query: str, payload: tuple) -> int:
-        self.cursor.execute(query, payload)
+        result = self.execute(query, payload)
         self.conn.commit()
-        return self.cursor.rowcount
+        return result.rowcount
 
     def insert_many(self, query: str, payload: list[tuple]) -> int:
-        self.cursor.executemany(query, payload)
-        self.conn.commit()
-        return self.cursor.rowcount
+        try:
+            self.cursor.executemany(query, payload)
+            self.conn.commit()
+            return self.cursor.rowcount
+        except sqlite3.Error as e:
+            raise DbError(str(e)) from e
 
     def __exit__(self, exc_type, exc, tb):
         self.conn.close()
@@ -54,6 +66,7 @@ def create_table(db: Db, path: Path) -> None:
         print("Sql script executed successfully")
     except sqlite3.Error as e:
         print("Failed to create table: ", str(e))
+        raise DbError(str(e)) from e
 
 
 def ensure_table_exists(db: Db) -> None:
@@ -71,8 +84,11 @@ def ensure_table_exists(db: Db) -> None:
 db = Db()
 
 
-def load_db() -> None:
-    ensure_table_exists(db)
+def load_db(d_b: Db | None = None) -> None:
+    if d_b is None:
+        ensure_table_exists(db)
+        return
+    ensure_table_exists(d_b)
 
 
 def get_db(database_path: Path | None = None) -> Db:

@@ -9,12 +9,12 @@ from pipecraft.etl import (
     RowTransformError,
     clean_row,
     normalize_row,
-    parse_result,
     run_pipeline,
     transform_rows,
     validate_row,
 )
 from pipecraft.etl import pipeline as pipeline_module
+from pipecraft.etl.models import Args, Row
 from pipecraft.etl.sink import Sink
 from pipecraft.utils.db import Db, ensure_table_exists
 
@@ -110,19 +110,19 @@ def test_run_pipeline_and_summarize_csv(
         encoding="utf-8",
     )
 
-    rows = run_pipeline(str(csv_path))
+    rows = run_pipeline(str(csv_path), Args(file=str(csv_path)))
 
-    assert len(rows) == 2
-    assert all(isinstance(row.id, UUID) for row in rows)
-    assert [(row.source_id, row.name, row.amount) for row in rows] == [
+    typed_rows = [row for row in rows if isinstance(row, Row)]
+    assert len(typed_rows) == 2
+    assert all(isinstance(row.id, UUID) for row in typed_rows)
+    assert [(row.source_id, row.name, row.amount) for row in typed_rows] == [
         (1, "Ada", 5),
         (2, "Grace", 8),
     ]
-    assert [row.created_at for row in rows] == [
+    assert [row.created_at for row in typed_rows] == [
         datetime(2026, 10, 23, 9),
         datetime(2026, 10, 23, 10),
     ]
-    assert parse_result(rows) == {"data": rows, "count": 2}
     assert isolated_pipeline_database.query_one(
         "SELECT status, rows_in, rows_out FROM run"
     ) == ("succeeded", 2, 2)

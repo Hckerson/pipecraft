@@ -25,7 +25,7 @@ class Run(BaseModel):
 
     id: Annotated[UUID, UuidVersion(4)] = Field(default_factory=uuid4)
     started_at: datetime
-    finished_at: datetime | None = None
+    finished_at: datetime
     status: RunStatus = Field(default=RunStatus.RUNNING)
     rows_in: int
     rows_out: int
@@ -39,7 +39,7 @@ class Row(BaseModel):
     name: str = Field(min_length=1)
     email: EmailStr = Field(min_length=1)
     amount: PositiveInt
-    source_id: int | None = None
+    source_id: int
     created_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -54,4 +54,4 @@ class Args(BaseModel):
 
 
 RawRow = Mapping[str, str | None]
-NormalizedRow = dict[str, str | int | UUID | datetime | None]
+NormalizedRow = Mapping[str, str | int | UUID | datetime | None]

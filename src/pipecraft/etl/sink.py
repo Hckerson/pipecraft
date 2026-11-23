@@ -34,7 +34,7 @@ class Sink:
             str(run.status),
             run.error_message,
             run.started_at.isoformat(),
-            run.finished_at and run.finished_at.isoformat(),
+            run.finished_at.isoformat(),
         )
 
         row_count = self.db.insert_one(

@@ -1,18 +1,18 @@
-from shutil import ExecError
 import sqlite3
+from collections.abc import Sequence
 from pathlib import Path
+from types import TracebackType
+from typing import Any
 
-from pipecraft.settings.path import get_path
-from pipecraft.utils.decorators import retry
+from ..settings.path import get_path
+from .decorators import retry
+from .errors import DbError
 
 paths = get_path()
 db_path = paths.data_dir / "pipecraft.db"
 listing_sql_path = paths.data_dir / "listing.sql"
 run_sql_path = paths.data_dir / "run.sql"
 
-
-class DbError(ExecError):
-    pass
 
 class Db:
     def __init__(self, database_path: Path | None = None) -> None:
@@ -25,26 +25,29 @@ class Db:
         return conn
 
     @retry
-    def execute(self, query: str, params: str | tuple = ()):
+    def execute(
+        self, query: str, params: str | tuple[object, ...] = ()
+    ) -> sqlite3.Cursor:
         try:
             return self.cursor.execute(query, params)
         except sqlite3.Error as e:
             raise DbError(str(e)) from e
 
-    def query_one(self, query: str, params: str | tuple = ()):
+    def query_one(self, query: str, params: str | tuple[object, ...] = ()) -> Any:
         result = self.execute(query, params)
         return result.fetchone()
 
-    def query_many(self, query: str, params: str | tuple = ()):
+    def query_many(self, query: str, params: str | tuple[object, ...] = ()) -> Any:
         result = self.execute(query, params)
         return result.fetchall()
 
-    def insert_one(self, query: str, payload: tuple) -> int:
+    def insert_one(self, query: str, payload: tuple[object, ...]) -> int:
         result = self.execute(query, payload)
         self.conn.commit()
         return result.rowcount
 
-    def insert_many(self, query: str, payload: list[tuple]) -> int:
+    @retry
+    def insert_many(self, query: str, payload: Sequence[tuple[object, ...]]) -> int:
         try:
             self.cursor.executemany(query, payload)
             self.conn.commit()
@@ -52,7 +55,12 @@ class Db:
         except sqlite3.Error as e:
             raise DbError(str(e)) from e
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.conn.close()
 
 

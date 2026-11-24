@@ -1,4 +1,12 @@
 
+
+
+
+
+
+
+
+
 CREATE TABLE listing (
     id TEXT PRIMARY KEY UNIQUE,
     name VARCHAR(255) NOT NULL,

@@ -4,13 +4,7 @@ from enum import StrEnum
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    EmailStr,
-    Field,
-    PositiveInt,
-)
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, PositiveInt
 from pydantic.types import UuidVersion
 
 
@@ -54,4 +48,4 @@ class Args(BaseModel):
 
 
 RawRow = Mapping[str, str | None]
-NormalizedRow = Mapping[str, str | int | UUID | datetime | None]
+NormalizedRow = dict[str, str | int | UUID | datetime | None]

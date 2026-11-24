@@ -4,14 +4,11 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 
+from ..utils.errors import RowTransformError
 from .models import NormalizedRow, RawRow, Row
 
 
-class RowTransformError(ValueError):
-    pass
-
-
-def clean_row(row: RawRow) -> dict[str, str | None]:
+def _clean_row(row: RawRow) -> dict[str, str | None]:
     cleaned_row: dict[str, str | None] = {}
 
     for key, value in row.items():
@@ -24,8 +21,8 @@ def clean_row(row: RawRow) -> dict[str, str | None]:
     return cleaned_row
 
 
-def normalize_row(row: RawRow) -> NormalizedRow:
-    cleaned_row = clean_row(row)
+def _normalize_row(row: RawRow) -> NormalizedRow:
+    cleaned_row = _clean_row(row)
 
     normalized_row: NormalizedRow = {}
 
@@ -52,8 +49,8 @@ def normalize_row(row: RawRow) -> NormalizedRow:
     return normalized_row
 
 
-def validate_row(row: RawRow) -> Row:
-    normalized_row = normalize_row(row)
+def _validate_row(row: RawRow) -> Row:
+    normalized_row = _normalize_row(row)
 
     try:
         return Row.model_validate(normalized_row)
@@ -62,4 +59,4 @@ def validate_row(row: RawRow) -> Row:
 
 
 def transform_rows(rows: Iterable[RawRow]) -> list[Row]:
-    return [validate_row(row) for row in rows]
+    return [_validate_row(row) for row in rows]

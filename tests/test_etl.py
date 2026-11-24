@@ -5,18 +5,16 @@ from uuid import UUID
 
 import pytest
 
+from pipecraft.etl import pipeline as pipeline_module
 from pipecraft.etl import (
-    RowTransformError,
-    clean_row,
-    normalize_row,
     run_pipeline,
     transform_rows,
-    validate_row,
 )
-from pipecraft.etl import pipeline as pipeline_module
 from pipecraft.etl.models import Args, Row
 from pipecraft.etl.sink import Sink
+from pipecraft.etl.transforms import _clean_row, _normalize_row, _validate_row
 from pipecraft.utils.db import Db, ensure_table_exists
+from pipecraft.utils.errors import RowTransformError
 
 
 @pytest.fixture
@@ -47,7 +45,7 @@ def test_clean_normalize_and_validate_rows() -> None:
         "optional": None,
     }
 
-    assert clean_row(raw_row) == {
+    assert _clean_row(raw_row) == {
         "id": "7",
         "name": "Ada Lovelace",
         "email": "ada@example.com",
@@ -57,7 +55,7 @@ def test_clean_normalize_and_validate_rows() -> None:
         "optional": None,
     }
 
-    normalized = normalize_row(raw_row)
+    normalized = _normalize_row(raw_row)
     assert isinstance(normalized["id"], UUID)
     assert normalized["source_id"] == 7
     assert normalized["name"] == "Ada Lovelace"
@@ -67,15 +65,15 @@ def test_clean_normalize_and_validate_rows() -> None:
     assert normalized["note"] is None
     assert normalized["optional"] is None
 
-    row = validate_row(raw_row)
+    row = _validate_row(raw_row)
     assert isinstance(row.id, UUID)
     assert row.source_id == 7
     assert row.amount == 42
     assert row.email == "ada@example.com"
 
 
-def test_normalize_uses_current_time_when_created_at_is_missing():
-    normalized = normalize_row(
+def test_normalize_uses_current_time_when_created_at_is_missing() -> None:
+    normalized = _normalize_row(
         {
             "id": "1",
             "name": "Grace Hopper",
@@ -89,7 +87,7 @@ def test_normalize_uses_current_time_when_created_at_is_missing():
 
 def test_validate_row_wraps_pydantic_validation_errors() -> None:
     with pytest.raises(RowTransformError, match="validation error"):
-        validate_row(
+        _validate_row(
             {
                 "id": "0",
                 "name": "",
@@ -128,7 +126,7 @@ def test_run_pipeline_and_summarize_csv(
     ) == ("succeeded", 2, 2)
 
 
-def test_transform_rows_validates_every_row():
+def test_transform_rows_validates_every_row() -> None:
     rows = transform_rows(
         [
             {

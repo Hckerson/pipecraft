@@ -1,0 +1,20 @@
+
+
+
+
+
+
+
+
+
+
+
+
+uv run mypy
+src\pipecraft\etl\sink.py:25: error: Argument 2 to "insert_many" of "Db" has incompatible type "list[tuple[str, str, str, int | None,int, str]]"; expected "list[tuple[object, ...]]"  [arg-type]
+src\pipecraft\etl\sink.py:25: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+src\pipecraft\etl\sink.py:25: note: Consider using "Sequence" instead, which is covariant
+Found 1 error in 1 file (checked 20 source files)
+(pipecraft) 
+emman@Hckerson MINGW64 ~/Downloads/Personal/python/projects/pipecraft (master)
+$ 

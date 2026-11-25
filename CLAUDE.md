@@ -1,11 +1,5 @@
-# JobRadar
+# pipecraft
 
-This is a learning project. Follow docs/python-roadmap.md phase by phase.
+A command-line ETL pipeline: it parses a CSV of listings, validates each row with Pydantic, loads the rows into SQLite and records every run. `--parse` stops after parsing and `--test` after transforming.
 
-- Read docs/python-roadmap.md before doing anything.
-- Work on one phase at a time. Don't skip ahead.
 - I'm learning: explain the concepts behind what you build, and let me write code where it helps me learn.
-- When a phase's "Done when" criteria are met, add a line under "Progress" below.
-
-## Progress
-- Not started. Next: Phase 0.

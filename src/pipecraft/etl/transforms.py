@@ -1,11 +1,18 @@
 from collections.abc import Iterable
 from datetime import datetime
+from typing import TypedDict
+from urllib import response
 from uuid import uuid4
 
 from pydantic import ValidationError
 
 from ..utils.errors import RowTransformError
-from .models import NormalizedRow, RawRow, Row
+from .models import NormalizedRow, RawRow, Row, RowCert
+
+
+class TransformedPayload(TypedDict):
+    valid: list[Row]
+    invalid: list[RowCert]
 
 
 def _clean_row(row: RawRow) -> dict[str, str | None]:
@@ -58,5 +65,19 @@ def _validate_row(row: RawRow) -> Row:
         raise RowTransformError(str(e)) from e
 
 
-def transform_rows(rows: Iterable[RawRow]) -> list[Row]:
-    return [_validate_row(row) for row in rows]
+def transform_rows(rows: Iterable[RawRow]) -> TransformedPayload:
+    valid_rows: list[Row] = []
+    invalid_rows: list[RowCert] = []
+
+    for id, row in enumerate(rows):
+        try:
+            result = _validate_row(row)
+            valid_rows.append(result)
+        except RowTransformError as e:
+            invalid_rows.append(
+                RowCert.model_construct(
+                    row_id=id + 2, row_content=row, error_message=str(e)
+                )
+            )
+
+    return {"valid": valid_rows, "invalid": invalid_rows}

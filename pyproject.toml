@@ -1,7 +1,7 @@
 [project]
 name = "pipecraft"
 version = "0.0.1"
-description = "Collect, analyse, serve and query job postings."
+description = "Command-line ETL pipeline: parse a CSV of listings, validate each row and load it into SQLite, recording every run."
 readme = "README.md"
 authors = [{ name = "Hckerson", email = "hckerson@gmail.com" }]
 license = "MIT"

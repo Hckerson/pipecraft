@@ -31,7 +31,7 @@ class Db:
         try:
             return self.cursor.execute(query, params)
         except sqlite3.Error as e:
-            raise DbError(str(e)) from e
+            raise DbError(str(e), e.sqlite_errorcode) from e
 
     def query_one(self, query: str, params: str | tuple[object, ...] = ()) -> Any:
         result = self.execute(query, params)
@@ -53,7 +53,7 @@ class Db:
             self.conn.commit()
             return self.cursor.rowcount
         except sqlite3.Error as e:
-            raise DbError(str(e)) from e
+            raise DbError(str(e), e.sqlite_errorcode) from e
 
     def __exit__(
         self,
@@ -74,7 +74,7 @@ def create_table(db: Db, path: Path) -> None:
         print("Sql script executed successfully")
     except sqlite3.Error as e:
         print("Failed to create table: ", str(e))
-        raise DbError(str(e)) from e
+        raise DbError(str(e), e.sqlite_errorcode) from e
 
 
 def ensure_table_exists(db: Db) -> None:
